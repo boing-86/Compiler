@@ -16,7 +16,7 @@
 %token<sVal> TSTRING
 %token TBREAK TCASE TDEFAULT TDO TELSE TFOR TIF TRETURN TSWITCH TWHILE 
 %token TCHAR TFLOAT TINT TVOID
-%token EQUAL INC DEC GE LE NE PE ME MTE DE MODE AND OR 
+%token EQUAL INC DEC GE LE NE PE ME MTE DE MODE AND OR
 %token TERROR TCOMMENT
 %start Program
 
@@ -37,9 +37,9 @@ FuncDec : VarType TIDENTIFIER '(' Params ')' CpndStmt		{printf("FuncDec -> VarTy
 		| TVOID TIDENTIFIER '(' Params ')' ';'				{printf("FuncDec -> void %s ( Params )\n", $2);}
 		;
 
-Params : ParamList		{printf("Param -> ParamList\n");}
-       | TVOID			{printf("Param -> void\n");}
-	   | 				{printf("Param -> epsilon\n");}
+Params : ParamList		{printf("Params -> ParamList\n");}
+       | TVOID			{printf("Params -> void\n");}
+	   | 				{printf("Params -> Empty\n");}
 	   ;
 
 ParamList : ParamList ',' Param		{printf("ParamList -> ParamList , Param\n");}
@@ -51,7 +51,7 @@ Param : VarType Value				{printf("Param -> VarType Value\n");}
 CpndStmt : '{' LDecList StmtList '}'	{printf("{ LDecList StmtList }\n");}
 
 LDecList : LDecList VarDec	{printf("LDecList -> LDecList VarDec\n");}
-		| 					{printf("LDecList -> epsilon\n");}
+		| 					{printf("LDecList -> Empty\n");}
 		;
 
 VarDec : VarType IDs ';'	{printf("VarDec -> VarType IDs ; \n");}
@@ -69,7 +69,7 @@ Value : TIDENTIFIER '[' TINTEGER ']'	{printf("Value -> %s [ %d ] \n", $1, $3);}
 	;
 
 StmtList : StmtList Stmt				{printf("StmtList -> StmtList Stmt\n");}
-		| 								{printf("StmtList -> epsilon\n");}
+		| 								{printf("StmtList -> Empty\n");}
 		;
 
 Stmt : MatchedStmt						{printf("Stmt -> MatchedStmt\n");}
@@ -84,7 +84,7 @@ MatchedStmt : ExprStmt							{printf("MatchedStmt -> ExprStmt\n");}
             | CpndStmt							{printf("MatchedStmt -> CpndStmt\n");}
             | BreakStmt							{printf("MatchedStmt -> BreakStmt\n");}
             | SwitchStmt						{printf("MatchedStmt -> SwitchStmt\n");}
-			| TIF '(' Expr ')' MatchedStmt 		{printf("MatchedStmt -> if ( Expr ) MatchedStmt\n");}
+			| TIF '(' Expr ')' TELSE MatchedStmt 		{printf("MatchedStmt -> if ( Expr ) else MatchedStmt\n");}
 			;
 
 OpenStmt : ForOpenStmt									{printf("OpenStmt -> ForOpenStmt\n");}
@@ -100,7 +100,7 @@ CaseList : CaseList TCASE TINTEGER ':' StmtList	{printf("CaseList -> CaseList ca
 		;
 
 DefaultCase : TDEFAULT ':' StmtList	{printf("DefaultCase -> default : StmtList\n");}
-			| 						{printf("DefaultCase -> epsilon\n");}
+			| 						{printf("DefaultCase -> Empty\n");}
 			;
 
 ReturnStmt : TRETURN Expr ';'	{printf("ReturnStmt -> return Expr ; \n");}
@@ -125,7 +125,7 @@ AssignExpr : Variable '=' Expr		{printf("AssignExpr -> Variable = Expr\n");}
 			;
 
 Variable : TIDENTIFIER '[' Expr ']'	{printf("Variable -> %s [ Expr ]\n", $1);}
-		| AndExpr					{printf("Variable -> AndExpr\n");}
+		| TIDENTIFIER					{printf("Variable -> %s\n", $1);}
 		;
 
 SimpleExpr : SimpleExpr OR AndExpr	{printf("SimpleExpr -> SimpleExpr || AndExpr\n");}
@@ -186,7 +186,7 @@ ForOpenStmt : TFOR '(' Expr ';' Expr ';' Expr ')' OpenStmt		{printf("ForOpenStmt
 FunCall : TIDENTIFIER '(' Arguments ')'		{printf("FunCall -> %s ( Arguments )\n", $1);}
 
 Arguments : ArgumentList	{printf("Arguments -> ArgumentList\n");}
-			| 				{printf("Arguments -> epsilon\n");}
+			| 				{printf("Arguments -> Empty\n");}
 			;
 
 ArgumentList : ArgumentList ',' Expr	{printf("ArgumentList -> ArgumentList , Expr\n");}

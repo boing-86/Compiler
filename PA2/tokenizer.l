@@ -100,7 +100,7 @@ OPERATOR {AOPERATOR}|{AOPERATOR}(=)|\+\+|\-\-|{BOPERATOR}|{BOPERATOR}(=)|\|\||\&
 
 {INTEGER} {checkInteger(); return TINTEGER;}
 
-{STRING} {yylval.sVal = (char*)malloc(yyleng);
+{STRING} {yylval.sVal = (char*)malloc(strlen(yytext)+1);
         checkString();
         return TSTRING;
         }
@@ -161,8 +161,11 @@ OPERATOR {AOPERATOR}|{AOPERATOR}(=)|\+\+|\-\-|{BOPERATOR}|{BOPERATOR}(=)|\|\||\&
         return OR;
     }
     
-    return yytext[0];
+    else if(yyleng == 1){
+        return yytext[0];
     }
+}
+
 . {return TERROR;}
 %%
 
@@ -263,5 +266,4 @@ void checkString(){
         strcat(yylval.sVal, ptr);
         ptr = strtok(NULL, "\\");
     }
-	
 }
