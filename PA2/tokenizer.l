@@ -89,10 +89,6 @@ OPERATOR {AOPERATOR}|{AOPERATOR}(=)|\+\+|\-\-|{BOPERATOR}|{BOPERATOR}(=)|\|\||\&
     else if (strcmp(yytext, "int")==0){
         return TINT;
     }
-
-    else{
-        return TKEYWORD;
-    }
     }
 {IDENTIFIER} {
             yylval.idVal = malloc(strlen(yytext)+1); 
@@ -112,7 +108,61 @@ OPERATOR {AOPERATOR}|{AOPERATOR}(=)|\+\+|\-\-|{BOPERATOR}|{BOPERATOR}(=)|\|\||\&
 {REAL} {yylval.rVal = atof(yytext); return TREAL;}
 {COMMENT} {return TCOMMENT;}
 {CHAR} {checkInteger(); return TINTEGER;}
-{OPERATOR} {return TOPERATOR;}
+{OPERATOR} {
+    if (strcmp(yytext, "==")==0){
+        return EQUAL;
+    }
+
+    else if (strcmp(yytext, "++")==0){
+        return INC;
+    }
+
+    else if (strcmp(yytext, "--")==0){
+        return DEC;
+    }
+
+    else if (strcmp(yytext, ">=")==0){
+        return GE;
+    }
+
+    else if (strcmp(yytext, "<=")==0){
+        return LE;
+    }
+
+    else if (strcmp(yytext, "!=")==0){
+        return NE;
+    }
+
+    else if (strcmp(yytext, "+=")==0){
+        return PE;
+    }
+
+    else if (strcmp(yytext, "-=")==0){
+        return ME;
+    }
+
+    else if (strcmp(yytext, "*=")==0){
+        return MTE;
+    }
+
+    else if (strcmp(yytext, "/=")==0){
+        return DE;
+    }
+
+    else if (strcmp(yytext, "%=")==0){
+        return MODE;
+    }
+
+    else if (strcmp(yytext, "&&")==0){
+        return AND;
+    }
+
+    else if (strcmp(yytext, "||")==0){
+        return OR;
+    }
+    
+    return yytext[0];
+    }
 . {return TERROR;}
 %%
 
