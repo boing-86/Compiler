@@ -7,13 +7,11 @@
 %union{
 	int iVal;
 	float rVal;
-	char* idVal;
 	char* sVal;
 }
 %token<iVal> TINTEGER
 %token<rVal> TREAL
-%token<idVal> TIDENTIFIER
-%token<sVal> TSTRING
+%token<sVal> TSTRING TIDENTIFIER
 %token TBREAK TCASE TDEFAULT TDO TELSE TFOR TIF TRETURN TSWITCH TWHILE 
 %token TCHAR TFLOAT TINT TVOID
 %token EQUAL INC DEC GE LE NE PE ME MTE DE MODE AND OR
@@ -166,7 +164,7 @@ Factor : '(' Expr ')'		{printf("Factor -> ( Expr )\n");}
 		;
 
 NumberLiteral : TINTEGER	{printf("NumberLiteral -> %d\n", $1);}
-			| TREAL			{printf("NumberLiteral -> %.2f", $1);}
+			| TREAL			{printf("NumberLiteral -> %.2f\n", $1);}
 			;
 
 IncDec : INC	{printf("IncDec -> ++ \n");}
@@ -190,9 +188,9 @@ Arguments : ArgumentList	{printf("Arguments -> ArgumentList\n");}
 			;
 
 ArgumentList : ArgumentList ',' Expr	{printf("ArgumentList -> ArgumentList , Expr\n");}
-			| ArgumentList ',' TSTRING	{printf("ArgumentList -> ArgumentList , %s", $3);}
+			| ArgumentList ',' TSTRING	{printf("ArgumentList -> ArgumentList , %s\n", $3);}
 			| Expr						{printf("ArgumentList -> Expr\n");}
-			| TSTRING					{printf("ArgumentList -> %s", $1);}
+			| TSTRING					{printf("ArgumentList -> %s\n", $1);}
 			;
 
 

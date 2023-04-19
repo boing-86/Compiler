@@ -91,7 +91,7 @@ OPERATOR {AOPERATOR}|{AOPERATOR}(=)|\+\+|\-\-|{BOPERATOR}|{BOPERATOR}(=)|\|\||\&
     }
     }
 {IDENTIFIER} {
-            yylval.idVal = malloc(strlen(yytext)+1); 
+            yylval.sVal = malloc(strlen(yytext)+1); 
             strcpy(yylval.sVal, yytext);
             return TIDENTIFIER;
             }
