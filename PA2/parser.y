@@ -30,7 +30,7 @@ Dec : VarDec			{printf("Dec -> VarDec\n");}
 	;
 
 FuncDec : VarType TIDENTIFIER '(' Params ')' CpndStmt		{printf("FuncDec -> VarType %s ( Params ) CpndStmt\n", $2);}
-        | VarType TIDENTIFIER '(' Params ')' ';'			{printf("FuncDec -> VarType %s ( Params );\n", $2);}
+        | VarType TIDENTIFIER '(' Params ')' ';'			{printf("FuncDec -> VarType %s ( Params ) ;\n", $2);}
 		| TVOID TIDENTIFIER '(' Params ')' CpndStmt			{printf("FuncDec -> void %s ( Params ) CpndStmt\n", $2);}
 		| TVOID TIDENTIFIER '(' Params ')' ';'				{printf("FuncDec -> void %s ( Params )\n", $2);}
 		;
@@ -46,13 +46,13 @@ ParamList : ParamList ',' Param		{printf("ParamList -> ParamList , Param\n");}
 
 Param : VarType Value				{printf("Param -> VarType Value\n");}
 
-CpndStmt : '{' LDecList StmtList '}'	{printf("{ LDecList StmtList }\n");}
+CpndStmt : '{' LDecList StmtList '}'	{printf("CpndStmt -> { LDecList StmtList }\n");}
 
 LDecList : LDecList VarDec	{printf("LDecList -> LDecList VarDec\n");}
 		| 					{printf("LDecList -> Empty\n");}
 		;
 
-VarDec : VarType IDs ';'	{printf("VarDec -> VarType IDs ; \n");}
+VarDec : VarType IDs ';'	{printf("VarDec -> VarType IDs ;\n");}
 
 VarType : TINT			{printf("VarType -> int\n");}
 		| TCHAR			{printf("VarType -> char\n");}
@@ -62,7 +62,7 @@ VarType : TINT			{printf("VarType -> int\n");}
 IDs : IDs ',' Value		{printf("IDs -> IDs , Value\n");}
 	| Value				{printf("IDs -> Value\n");}
 
-Value : TIDENTIFIER '[' TINTEGER ']'	{printf("Value -> %s [ %d ] \n", $1, $3);}
+Value : TIDENTIFIER '[' TINTEGER ']'	{printf("Value -> %s [ %d ]\n", $1, $3);}
 	| TIDENTIFIER						{printf("Value -> %s\n", $1);}
 	;
 
@@ -101,14 +101,14 @@ DefaultCase : TDEFAULT ':' StmtList	{printf("DefaultCase -> default : StmtList\n
 			| 						{printf("DefaultCase -> Empty\n");}
 			;
 
-ReturnStmt : TRETURN Expr ';'	{printf("ReturnStmt -> return Expr ; \n");}
-			| TRETURN ';'		{printf("ReturnStmt -> return ; \n");}
+ReturnStmt : TRETURN Expr ';'	{printf("ReturnStmt -> return Expr ;\n");}
+			| TRETURN ';'		{printf("ReturnStmt -> return ;\n");}
 			;
 
-BreakStmt : TBREAK ';'	{printf("BreakStmt -> break ; \n");}
+BreakStmt : TBREAK ';'	{printf("BreakStmt -> break ;\n");}
 
-ExprStmt : Expr ';'	{printf("ExprStmt -> Expr ; \n");}
-		| ';'		{printf("ExprStmt -> ; \n");}
+ExprStmt : Expr ';'	{printf("ExprStmt -> Expr ;\n");}
+		| ';'		{printf("ExprStmt -> ;\n");}
 		;
 
 Expr : AssignExpr	{printf("Expr -> AssignExpr\n");}
@@ -127,7 +127,7 @@ Variable : TIDENTIFIER '[' Expr ']'	{printf("Variable -> %s [ Expr ]\n", $1);}
 		;
 
 SimpleExpr : SimpleExpr OR AndExpr	{printf("SimpleExpr -> SimpleExpr || AndExpr\n");}
-			| RelExpr					{printf("SimpleExpr -> RelExpr\n");}
+			| AndExpr					{printf("SimpleExpr -> AndExpr\n");}
 			;
 
 AndExpr : AndExpr AND RelExpr			{printf("AndExpr -> AndExpr && RelExpr\n");}
@@ -155,7 +155,7 @@ Term : Term '*' Factor	{printf("Term -> Term * Factor\n");}
 	;
 
 Factor : '(' Expr ')'		{printf("Factor -> ( Expr )\n");}
-		| FunCall			{printf("Factor -> FunCall\n");}
+		| FuncCall			{printf("Factor -> FuncCall\n");}
 		| '-' Factor		{printf("Factor -> - Factor\n");}
 		| Variable			{printf("Factor -> Variable\n");}
 		| Variable IncDec	{printf("Factor -> Variable IncDec\n");}
@@ -167,21 +167,21 @@ NumberLiteral : TINTEGER	{printf("NumberLiteral -> %d\n", $1);}
 			| TREAL			{printf("NumberLiteral -> %.2f\n", $1);}
 			;
 
-IncDec : INC	{printf("IncDec -> ++ \n");}
-		| DEC	{printf("IncDec -> -- \n");}
+IncDec : INC	{printf("IncDec -> ++\n");}
+		| DEC	{printf("IncDec -> --\n");}
 		;
 
 WhileMatchedStmt : TWHILE '(' Expr ')' MatchedStmt	{printf("WhileMatchedStmt -> while ( Expr ) MatchedStmt\n");}
 
 WhileOpenStmt : TWHILE '(' Expr ')' OpenStmt		{printf("WhileOpenStmt -> while ( Expr ) OpenStmt\n");}
 
-DoWhileStmt : TDO Stmt TWHILE '(' Expr ')'';'		{printf("DoWhileStmt -> do Stmt while ( Expr ) ; \n");}
+DoWhileStmt : TDO Stmt TWHILE '(' Expr ')'';'		{printf("DoWhileStmt -> do Stmt while ( Expr ) ;\n");}
 
 ForMatchedStmt : TFOR '(' Expr ';' Expr ';' Expr ')' MatchedStmt	{printf("ForMatchedStmt -> for ( Expr ; Expr ; Expr ; ) MatchedStmt\n");}
 
 ForOpenStmt : TFOR '(' Expr ';' Expr ';' Expr ')' OpenStmt		{printf("ForOpenStmt -> for ( Expr ; Expr ; Expr ) OpenStmt\n");}
 
-FunCall : TIDENTIFIER '(' Arguments ')'		{printf("FunCall -> %s ( Arguments )\n", $1);}
+FuncCall : TIDENTIFIER '(' Arguments ')'		{printf("FuncCall -> %s ( Arguments )\n", $1);}
 
 Arguments : ArgumentList	{printf("Arguments -> ArgumentList\n");}
 			| 				{printf("Arguments -> Empty\n");}
