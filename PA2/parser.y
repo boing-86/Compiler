@@ -82,7 +82,7 @@ MatchedStmt : ExprStmt							{printf("MatchedStmt -> ExprStmt\n");}
             | CpndStmt							{printf("MatchedStmt -> CpndStmt\n");}
             | BreakStmt							{printf("MatchedStmt -> BreakStmt\n");}
             | SwitchStmt						{printf("MatchedStmt -> SwitchStmt\n");}
-			| TIF '(' Expr ')' TELSE MatchedStmt 		{printf("MatchedStmt -> if ( Expr ) else MatchedStmt\n");}
+			| TIF '(' Expr ')' MatchedStmt TELSE MatchedStmt 		{printf("MatchedStmt -> if ( Expr ) else MatchedStmt\n");}
 			;
 
 OpenStmt : ForOpenStmt									{printf("OpenStmt -> ForOpenStmt\n");}
