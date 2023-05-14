@@ -27,8 +27,9 @@ Program : DecList		{ASTNode* n = makeASTNode(_PROG);
 						push(stack, setChild(n, n1));}
 
 DecList : DecList Dec	{ASTNode* dec = pop(stack); 
-						ASTNode* declist = pop(stack); 
-						push(stack, setLastSibling(declist, dec));}
+						ASTNode* declist = pop(stack);
+						push(stack, setLastSibling(declist, dec));
+						}
 		| Dec			{}
 		;
 
@@ -85,9 +86,23 @@ CpndStmt : '{' LDecList StmtList '}'	{ASTNode* cpndstmt = makeASTNode(_CPNDSTMT)
 										ASTNode* ldeclist = pop(stack);
 										push(stack, setChild(cpndstmt, setSibling(ldeclist, stmtlist)));}
 
-LDecList : LDecList VarDec	{ASTNode* vardec = pop(stack);
+LDecList : LDecList VarDec	{
+							ASTNode* vardec = pop(stack);
 							ASTNode* ldeclist = pop(stack);
-							if(getChild(ldeclist)){push(stack, setLastSibling(getChild(ldeclist), vardec));}
+							ASTNode* vardecs = getChild(ldeclist);
+							if(vardecs != NULL){
+								if(getSibling(vardecs) == NULL){
+									push(stack, setChild(ldeclist, setSibling(vardecs, vardec)));
+								}
+								else{
+									ASTNode* tmp = getSibling(vardecs);
+									while(getSibling(tmp) != NULL){
+										tmp = getSibling(tmp);
+									}
+									ASTNode* a = setSibling(tmp, vardec);
+									push(stack, setChild(ldeclist, getChild(ldeclist)));
+								}
+							}
 							else {push(stack, setChild(ldeclist, vardec));}}
 		| 					{push(stack, makeASTNode(_LDECLIST));}
 		;
@@ -115,8 +130,22 @@ Value : TIDENTIFIER '[' TINTEGER ']'	{ASTNode* array = makeASTNode(_ARRAY);
 
 StmtList : StmtList Stmt				{ASTNode* stmt = pop(stack);
 										ASTNode* stmtlist = pop(stack);
-										if(getChild(stmtlist)){push(stack, setLastSibling(getChild(stmtlist), stmt));}
-										else {push(stack, setChild(stmtlist, stmt));}}
+										ASTNode* stmts = getChild(stmtlist);
+										if(stmts != NULL){
+											if(getSibling(stmts) == NULL){
+												push(stack, setChild(stmtlist, setSibling(stmts, stmt)));
+											}
+											else{
+												ASTNode* tmp = getSibling(stmts);
+												while(getSibling(tmp) != NULL){
+													tmp = getSibling(tmp);
+											}
+											ASTNode* a = setSibling(tmp, stmt);
+											push(stack, setChild(stmtlist, getChild(stmtlist)));
+											}
+										} 
+										else {push(stack, setChild(stmtlist, stmt));}
+										}
 		| 								{push(stack, makeASTNode(_STMTLIST));}
 		;
 
@@ -188,14 +217,17 @@ DefaultCase : TDEFAULT ':' StmtList	{
 			| 						{push(stack, makeASTNode(_DEFAULT));}
 			;
 
-ReturnStmt : TRETURN Expr ';'	{printf("ReturnStmt -> return Expr ;\n");}
+ReturnStmt : TRETURN Expr ';'	{}
 			| TRETURN ';'		{printf("ReturnStmt -> return ;\n");}
 			;
 
 BreakStmt : TBREAK ';'	{printf("BreakStmt -> break ;\n");}
 
-ExprStmt : Expr ';'	{}
-		| ';'		{}
+ExprStmt : Expr ';'	{
+			ASTNode* expr = pop(stack);
+			ASTNode* exprstmt = makeASTNode(_EXPRSTMT);
+			push(stack, setChild(exprstmt, expr));}
+		| ';'		{push(stack, makeASTNode(_EXPRSTMT));}
 		;
 
 Expr : AssignExpr	{}
