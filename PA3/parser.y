@@ -177,16 +177,22 @@ SwitchStmt : TSWITCH '(' Expr ')' '{' CaseList DefaultCase'}'	{
 	ASTNode* defaultcase = pop(stack);
 	ASTNode* caselist = pop(stack);
 	ASTNode* expr = pop(stack);
-	push(stack, setChild(swtichstmt, setSibling(expr, (setSibling (caselist, defaultcase)))));
+	push(stack, setChild(swtichstmt, setSibling(expr, setLastSibling (caselist, defaultcase))));
 	}
 
 CaseList : CaseList TCASE TINTEGER ':' StmtList	{
 			checkloop = 1;
-			ASTNode* stmtlist = pop(stack);
-			ASTNode* caselist = pop(stack);
-			ASTNode* case_ = makeASTNode(_CASE);
-			ASTNode* integer = makeASTNodeINT($3);
-			push(stack, setLastSibling(caselist, setChild(case_, setSibling(integer, stmtlist))));
+			ASTNode* n3 = pop(stack);
+			ASTNode* n2 = makeASTNodeINT($3);
+			ASTNode* n1 = makeASTNode(_CASE);
+			ASTNode* n = pop(stack);
+
+			if(getSibling(n)){
+				setLastSibling(getSibling(n), setChild(n1, setSibling(n2, n3)));
+				push(stack, n);
+			} else {
+				push(stack, setSibling(n, setChild(n1, setSibling(n2, n3))));
+			}
 		}
 
 		| TCASE TINTEGER ':' StmtList			{

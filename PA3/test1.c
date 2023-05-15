@@ -1,6 +1,6 @@
 void main(){
     int a[10], i;
-    int a;
+    int a, score;
 	float f, g, d;
 	a[0] = 2;
     
@@ -12,7 +12,7 @@ void main(){
 		r = p % i++;
 
 		if(r == 3){
-			a = a+3;
+			a = a + 3;
 			break;
 		}
 	}while(i<p && r > 0);
