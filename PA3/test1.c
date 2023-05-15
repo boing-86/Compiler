@@ -10,5 +10,30 @@ void main(){
 
     do{
 		r = p % i++;
+
+		if(r == 3){
+			a = a+3;
+			break;
+		}
 	}while(i<p && r > 0);
+
+	switch(score/10){
+		case 10 :
+			a = 10;
+			break;
+		case 9 :
+			a = 9;
+			break;
+		case 8 :
+			a = 8;
+			break;
+		case 7 :
+			a = 7;
+			break;
+		case 6 :
+			a = 6;
+			break;
+		default :
+			a = 0;
+	}
 }

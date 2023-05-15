@@ -5,6 +5,7 @@
 	int yylex(void);
 	int yyerror(char* s);
 	STACK *stack;
+	int checkloop = 0;
 %}
 %union{
 	int iVal;
@@ -87,23 +88,14 @@ CpndStmt : '{' LDecList StmtList '}'	{ASTNode* cpndstmt = makeASTNode(_CPNDSTMT)
 										push(stack, setChild(cpndstmt, setSibling(ldeclist, stmtlist)));}
 
 LDecList : LDecList VarDec	{
-							ASTNode* vardec = pop(stack);
-							ASTNode* ldeclist = pop(stack);
-							ASTNode* vardecs = getChild(ldeclist);
-							if(vardecs != NULL){
-								if(getSibling(vardecs) == NULL){
-									push(stack, setChild(ldeclist, setSibling(vardecs, vardec)));
-								}
-								else{
-									ASTNode* tmp = getSibling(vardecs);
-									while(getSibling(tmp) != NULL){
-										tmp = getSibling(tmp);
-									}
-									ASTNode* a = setSibling(tmp, vardec);
-									push(stack, setChild(ldeclist, getChild(ldeclist)));
-								}
-							}
-							else {push(stack, setChild(ldeclist, vardec));}}
+	ASTNode* vardec = pop(stack);
+	ASTNode* ldeclist = pop(stack);
+	if(getChild(ldeclist)){setLastSibling(getChild(ldeclist), vardec);
+	push(stack, ldeclist);}
+	else{
+		push(stack, setChild(ldeclist, vardec));
+	}
+}
 		| 					{push(stack, makeASTNode(_LDECLIST));}
 		;
 
@@ -128,24 +120,17 @@ Value : TIDENTIFIER '[' TINTEGER ']'	{ASTNode* array = makeASTNode(_ARRAY);
 	| TIDENTIFIER						{push(stack, makeASTNodeID($1));}
 	;
 
-StmtList : StmtList Stmt				{ASTNode* stmt = pop(stack);
-										ASTNode* stmtlist = pop(stack);
-										ASTNode* stmts = getChild(stmtlist);
-										if(stmts != NULL){
-											if(getSibling(stmts) == NULL){
-												push(stack, setChild(stmtlist, setSibling(stmts, stmt)));
-											}
-											else{
-												ASTNode* tmp = getSibling(stmts);
-												while(getSibling(tmp) != NULL){
-													tmp = getSibling(tmp);
-											}
-											ASTNode* a = setSibling(tmp, stmt);
-											push(stack, setChild(stmtlist, getChild(stmtlist)));
-											}
-										} 
-										else {push(stack, setChild(stmtlist, stmt));}
-										}
+StmtList : StmtList Stmt				
+{
+	ASTNode* stmt = pop(stack);
+	ASTNode* stmtlist = pop(stack);
+	if(getChild(stmtlist)){
+		setLastSibling(getChild(stmtlist), stmt);
+		push(stack, stmtlist);}
+	else{
+		push(stack, setChild(stmtlist, stmt));
+	}
+	}
 		| 								{push(stack, makeASTNode(_STMTLIST));}
 		;
 
@@ -154,9 +139,9 @@ Stmt : MatchedStmt						{}
 	;
 
 MatchedStmt : ExprStmt							{}
-			| ForMatchedStmt					{}
-			| WhileMatchedStmt					{}
-			| DoWhileStmt						{}
+			| ForMatchedStmt					{checkloop = 1;}
+			| WhileMatchedStmt					{checkloop = 1;}
+			| DoWhileStmt						{checkloop = 1;}
 			| ReturnStmt						{}
             | CpndStmt							{}
             | BreakStmt							{}
@@ -187,21 +172,25 @@ OpenStmt : ForOpenStmt									{}
 		;
 
 SwitchStmt : TSWITCH '(' Expr ')' '{' CaseList DefaultCase'}'	{
-			ASTNode* swtichstmt = makeASTNode(_SWSTMT);
-			ASTNode* defaultcase = pop(stack);
-			ASTNode* caselist = pop(stack);
-			ASTNode* expr = pop(stack);
-			push(stack, setChild(swtichstmt, setSibling(expr, (setSibling (caselist, defaultcase)))));}
+	checkloop = 0;
+	ASTNode* swtichstmt = makeASTNode(_SWSTMT);
+	ASTNode* defaultcase = pop(stack);
+	ASTNode* caselist = pop(stack);
+	ASTNode* expr = pop(stack);
+	push(stack, setChild(swtichstmt, setSibling(expr, (setSibling (caselist, defaultcase)))));
+	}
 
 CaseList : CaseList TCASE TINTEGER ':' StmtList	{
+			checkloop = 1;
 			ASTNode* stmtlist = pop(stack);
 			ASTNode* caselist = pop(stack);
 			ASTNode* case_ = makeASTNode(_CASE);
 			ASTNode* integer = makeASTNodeINT($3);
 			push(stack, setLastSibling(caselist, setChild(case_, setSibling(integer, stmtlist))));
+		}
 
-}
 		| TCASE TINTEGER ':' StmtList			{
+			checkloop = 1;
 			ASTNode* stmtlist = pop(stack);
 			ASTNode* case_ = makeASTNode(_CASE);
 			ASTNode* integer = makeASTNodeINT($2);
@@ -217,11 +206,23 @@ DefaultCase : TDEFAULT ':' StmtList	{
 			| 						{push(stack, makeASTNode(_DEFAULT));}
 			;
 
-ReturnStmt : TRETURN Expr ';'	{}
-			| TRETURN ';'		{printf("ReturnStmt -> return ;\n");}
+ReturnStmt : TRETURN Expr ';'	{
+	ASTNode* _return = makeASTNode(_RTSTMT);
+	ASTNode* expr = pop(stack);
+	push(stack, setChild(_return, expr));
+	}
+			| TRETURN ';'		{push(stack, makeASTNode(_RTSTMT));}
 			;
 
-BreakStmt : TBREAK ';'	{printf("BreakStmt -> break ;\n");}
+BreakStmt : TBREAK ';'	{
+	if(checkloop == 1){
+		push(stack, makeASTNode(_BRKSTMT));
+		checkloop = 0;
+	}
+	else{
+		yyerror("break must in loop or switch");
+	}
+}
 
 ExprStmt : Expr ';'	{
 			ASTNode* expr = pop(stack);
