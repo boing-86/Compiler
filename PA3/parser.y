@@ -23,7 +23,8 @@
 
 %%
 
-Program : DecList		{ASTNode* n = makeASTNode(_PROG); 
+Program : DecList		{
+	ASTNode* n = makeASTNode(_PROG); 
 						ASTNode* n1 = pop(stack); 
 						push(stack, setChild(n, n1));}
 
@@ -134,18 +135,18 @@ StmtList : StmtList Stmt
 		| 								{push(stack, makeASTNode(_STMTLIST));}
 		;
 
-Stmt : MatchedStmt						{}
+Stmt : MatchedStmt						{printf("#### %d ", checkloop);}
 	| OpenStmt							{}
 	;
 
 MatchedStmt : ExprStmt							{}
-			| ForMatchedStmt					{checkloop = 1;}
-			| WhileMatchedStmt					{checkloop = 1;}
-			| DoWhileStmt						{checkloop = 1;}
+			| ForMatchedStmt					{printf(" for #####\n");}
+			| WhileMatchedStmt					{printf(" while #####\n");}
+			| DoWhileStmt						{printf(" dowhile #####\n");}
 			| ReturnStmt						{}
             | CpndStmt							{}
             | BreakStmt							{}
-            | SwitchStmt						{}
+            | SwitchStmt						{printf(" switch #####\n");}
 			| TIF '(' Expr ')' MatchedStmt TELSE MatchedStmt 		{
 				ASTNode* ifstmt = makeASTNode(_IFSTMT);
 				ASTNode* stmt2 = pop(stack);
@@ -182,16 +183,16 @@ SwitchStmt : TSWITCH '(' Expr ')' '{' CaseList DefaultCase'}'	{
 
 CaseList : CaseList TCASE TINTEGER ':' StmtList	{
 			checkloop = 1;
-			ASTNode* n3 = pop(stack);
-			ASTNode* n2 = makeASTNodeINT($3);
-			ASTNode* n1 = makeASTNode(_CASE);
-			ASTNode* n = pop(stack);
+			ASTNode* stmtlist = pop(stack);
+			ASTNode* integer = makeASTNodeINT($3);
+			ASTNode* case_ = makeASTNode(_CASE);
+			ASTNode* caselist = pop(stack);
 
-			if(getSibling(n)){
-				setLastSibling(getSibling(n), setChild(n1, setSibling(n2, n3)));
-				push(stack, n);
+			if(getSibling(caselist)){
+				setLastSibling(getSibling(caselist), setChild(case_, setSibling(integer, stmtlist)));
+				push(stack, caselist);
 			} else {
-				push(stack, setSibling(n, setChild(n1, setSibling(n2, n3))));
+				push(stack, setSibling(caselist, setChild(case_, setSibling(integer, stmtlist))));
 			}
 		}
 
