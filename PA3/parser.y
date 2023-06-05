@@ -135,18 +135,18 @@ StmtList : StmtList Stmt
 		| 								{push(stack, makeASTNode(_STMTLIST));}
 		;
 
-Stmt : MatchedStmt						{printf("#### %d ", checkloop);}
+Stmt : MatchedStmt						{}
 	| OpenStmt							{}
 	;
 
 MatchedStmt : ExprStmt							{}
-			| ForMatchedStmt					{printf(" for #####\n");}
-			| WhileMatchedStmt					{printf(" while #####\n");}
-			| DoWhileStmt						{printf(" dowhile #####\n");}
+			| ForMatchedStmt					{checkloop = 1;}
+			| WhileMatchedStmt					{checkloop = 1;}
+			| DoWhileStmt						{checkloop = 1;}
 			| ReturnStmt						{}
             | CpndStmt							{}
             | BreakStmt							{}
-            | SwitchStmt						{printf(" switch #####\n");}
+            | SwitchStmt						{}
 			| TIF '(' Expr ')' MatchedStmt TELSE MatchedStmt 		{
 				ASTNode* ifstmt = makeASTNode(_IFSTMT);
 				ASTNode* stmt2 = pop(stack);
@@ -469,7 +469,7 @@ ArgumentList : ArgumentList ',' Expr	{
 
 %%
 int main(int argc, char* argv[]){
-
+	ASTNode* root;
 	extern FILE *yyin;
 	stack = initStack();
 	yyin = fopen(argv[1], "r");
